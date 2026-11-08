@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuestro Equipo - La Habitación 3</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+
+    <!-- Navegación Superior -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <img src="img/Logo.jpg" alt="Logo La Habitación 3" class="w-10 h-10 object-cover rounded-lg shadow-sm border border-slate-200">
+                <a href="index.html" class="font-bold text-teal-700 text-lg hover:opacity-80 transition">La Habitación 3</a>
+            </div>
+            <nav class="flex items-center space-x-6 text-sm font-medium">
+                <a href="index.html" class="text-slate-600 hover:text-teal-600 transition">Inicio</a>
+                <a href="team.html" class="text-teal-700 font-semibold">Nuestro Equipo</a>
+                <a href="form.html" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg transition shadow-sm">Solicitar Valoración</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Encabezado de la Sección -->
+    <section class="bg-gradient-to-b from-teal-50/60 to-slate-50 py-16 px-6 text-center">
+        <div class="max-w-3xl mx-auto space-y-4">
+            <span class="bg-teal-100 text-teal-800 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">Profesionales BUAP</span>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-slate-800">Conoce a Nuestro Equipo de Especialistas</h1>
+            <p class="text-slate-600">
+                Egresadas comprometidas con la salud mental, con sólida formación académica y bajo rigurosa supervisión especializada.
+            </p>
+        </div>
+    </section>
+
+    <!-- Listado Dinámico de Psicólogas -->
+    <main class="max-w-6xl mx-auto px-6 py-12">
+        <div id="psicologas-container" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 text-center col-span-3 text-slate-400">
+                Cargando perfiles del equipo...
+            </div>
+        </div>
+    </main>
+
+    <!-- Pie de página -->
+    <footer class="bg-white py-8 px-6 text-center text-sm text-slate-500 border-t border-slate-200 mt-20">
+        <p><strong>La Habitación 3</strong> • Egresadas Facultad de Psicología BUAP</p>
+        <p class="mt-1 text-xs text-slate-400">Espacio de acompañamiento psicológico profesional.</p>
+    </footer>
+
+    <!-- Script de Conexión -->
+    <script>
+        const SUPABASE_URL = 'https://oddwjbwgwzjileskswav.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_vnjYqGK_ubz_Zsq50oc4Sw_NLdtbtlh';
+
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function cargarEquipo() {
+            const { data, error } = await _supabase.from('psicologas').select('*').eq('activa', true);
+            const container = document.getElementById('psicologas-container');
+
+            if (error) {
+                container.innerHTML = `<p class="text-red-500 text-center col-span-3">Error al cargar los perfiles del equipo.</p>`;
+                console.error(error);
+                return;
+            }
+
+            if (data.length === 0) {
+                container.innerHTML = `<p class="text-slate-400 text-center col-span-3">No hay perfiles registrados por el momento.</p>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            data.forEach(p => {
+                container.innerHTML += `
+                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 flex flex-col justify-between hover:shadow-md transition">
+                        <div>
+                            <div class="w-12 h-12 bg-teal-50 text-teal-700 rounded-xl flex items-center justify-center font-bold text-xl mb-4">👩‍⚕️</div>
+                            <h3 class="font-bold text-lg text-slate-800">${p.nombre_completo}</h3>
+                            <p class="text-xs font-semibold text-teal-700 mt-1">${p.universidad_egreso || 'Facultad de Psicología BUAP'}</p>
+                            <p class="text-slate-600 text-sm mt-4 leading-relaxed">${p.enfoque || 'Acompañamiento y orientación general'}</p>
+                        </div>
+                        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+                            <span>Supervisión Experta</span>
+                            <span class="text-teal-600 font-medium">Maestría BUAP</span>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        cargarEquipo();
+    </script>
+</body>
+</html>

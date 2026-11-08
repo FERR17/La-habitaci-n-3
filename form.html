@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitud de Valoración - La Habitación 3</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+
+    <!-- Encabezado / Navegación -->
+    <header class="bg-white shadow-sm py-4 px-6 relative">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <img src="img/Logo.jpg" alt="Logo La Habitación 3" class="w-9 h-9 object-cover rounded-lg shadow-sm border border-slate-200">
+                <span class="font-bold text-teal-700 text-base">La Habitación 3</span>
+            </div>
+            <nav class="flex items-center space-x-6 text-sm font-medium">
+                <a href="index.html" class="text-slate-600 hover:text-teal-700 transition">Inicio</a>
+                <a href="team.html" class="text-slate-600 hover:text-teal-700 transition">Nuestro Equipo</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto px-6 py-10">
+        
+        <!-- Formulario de Solicitud de Acompañamiento -->
+        <section class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100">
+            <div class="mb-8 text-center">
+                <h1 class="text-2xl font-semibold text-slate-700">Solicitar Valoración</h1>
+                <p class="text-sm text-slate-500 mt-1">Costo por sesión: $100 MXN (Pago exclusivo por transferencia). Si es para un menor de edad, el tutor debe llenar el formulario.</p>
+            </div>
+            
+            <form id="cita-form" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">¿Para quién es el servicio?</label>
+                    <select id="destinatario" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none bg-white" onchange="toggleCamposTercero()">
+                        <option value="">Selecciona una opción...</option>
+                        <option value="Para mí">Para mí (Uso personal)</option>
+                        <option value="Para una tercera persona">Para una tercera persona (Hijo/a, familiar, etc.)</option>
+                    </select>
+                </div>
+
+                <!-- SECCIÓN 1: Datos de quien llena el formulario -->
+                <div id="seccion-principal-datos" class="space-y-4">
+                    <div>
+                        <label id="label-nombre" class="block text-sm font-medium text-slate-600 mb-1">Nombre Completo</label>
+                        <input type="text" id="nombre" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none">
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">Edad</label>
+                            <input type="number" id="edad" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">Género</label>
+                            <select id="genero" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none bg-white">
+                                <option value="">Selecciona...</option>
+                                <option value="Femenino">Femenino</option>
+                                <option value="Masculino">Masculino</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">Correo Electrónico</label>
+                            <input type="email" id="correo" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">Teléfono / WhatsApp</label>
+                            <input type="tel" id="telefono" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCIÓN 2: Datos del Paciente (Solo si es para un tercero) -->
+                <div id="seccion-tercero" class="hidden space-y-4 p-4 bg-teal-50/50 rounded-xl border border-teal-100">
+                    <h3 class="font-semibold text-teal-800 text-sm">Datos del Paciente (Tercera Persona)</h3>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Nombre Completo del Paciente</label>
+                        <input type="text" id="nombre_paciente" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none bg-white">
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">Edad del Paciente</label>
+                            <input type="number" id="edad_paciente" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">Género del Paciente</label>
+                            <select id="genero_paciente" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none bg-white">
+                                <option value="">Selecciona...</option>
+                                <option value="Femenino">Femenino</option>
+                                <option value="Masculino">Masculino</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Horario de Preferencia</label>
+                    <select id="horario" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none bg-white">
+                        <option value="">Selecciona un horario...</option>
+                        <option value="Matutino (Lunes a Viernes 10:00 am - 1:00 pm)">Matutino (Lunes a Viernes de 10:00 am a 1:00 pm)</option>
+                        <option value="Vespertino (Lunes a Viernes 2:00 pm - 5:00 pm)">Vespertino (Lunes a Viernes de 2:00 pm a 5:00 pm)</option>
+                        <option value="Sábado (9:00 am - 12:00 pm)">Sábado (de 9:00 am a 12:00 pm)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">Breve motivo de consulta</label>
+                    <textarea id="motivo" rows="4" required placeholder="Describe brevemente el motivo..." class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"></textarea>
+                </div>
+
+                <!-- Casilla de aceptación obligatoria -->
+                <div class="flex items-start space-x-3 pt-2">
+                    <input type="checkbox" id="terminos" required class="mt-1 h-4 w-4 text-teal-600 focus:ring-teal-500 border-slate-300 rounded cursor-pointer">
+                    <label for="terminos" class="text-xs text-slate-600 cursor-pointer leading-relaxed">
+                        Entiendo que la información brindada en este formulario es confidencial. Declaro que la información proporcionada es verídica y acepto ser contactado/a para coordinar la primera sesión.
+                    </label>
+                </div>
+
+                <!-- Botón de Envío con soporte para Spinner -->
+                <button type="submit" id="btn-enviar" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-3 rounded-lg transition shadow-sm mt-4 flex items-center justify-center space-x-2 cursor-pointer">
+                    <span id="btn-texto">Enviar Solicitud de Evaluación</span>
+                    <svg id="btn-spinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                </button>
+            </form>
+            <div id="mensaje-exito" class="hidden mt-4 p-3 bg-green-50 text-green-700 rounded-lg text-center font-medium text-sm"></div>
+        </section>
+
+    </main>
+
+    <!-- Script de Conexión y Lógica -->
+    <script>
+        const SUPABASE_URL = 'https://oddwjbwgwzjileskswav.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_vnjYqGK_ubz_Zsq50oc4Sw_NLdtbtlh';
+
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        function toggleCamposTercero() {
+            const destinatario = document.getElementById('destinatario').value;
+            const seccionTercero = document.getElementById('seccion-tercero');
+            const labelNombre = document.getElementById('label-nombre');
+            const nombrePacienteInput = document.getElementById('nombre_paciente');
+            const edadPacienteInput = document.getElementById('edad_paciente');
+            const generoPacienteInput = document.getElementById('genero_paciente');
+
+            if (destinatario === 'Para una tercera persona') {
+                seccionTercero.classList.remove('hidden');
+                labelNombre.textContent = 'Nombre Completo de Quien Solicita (Tutor / Familiar)';
+                nombrePacienteInput.required = true;
+                edadPacienteInput.required = true;
+                generoPacienteInput.required = true;
+            } else {
+                seccionTercero.classList.add('hidden');
+                labelNombre.textContent = 'Nombre Completo';
+                nombrePacienteInput.required = false;
+                edadPacienteInput.required = false;
+                generoPacienteInput.required = false;
+            }
+        }
+
+        document.getElementById('cita-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const btnEnviar = document.getElementById('btn-enviar');
+            const btnTexto = document.getElementById('btn-texto');
+            const btnSpinner = document.getElementById('btn-spinner');
+            const mensajeBox = document.getElementById('mensaje-exito');
+
+            // 1. Activar estado de carga
+            btnEnviar.disabled = true;
+            btnEnviar.classList.add('opacity-75', 'cursor-not-allowed');
+            btnTexto.textContent = 'Enviando solicitud...';
+            btnSpinner.classList.remove('hidden');
+            mensajeBox.classList.add('hidden');
+
+            const destinatario = document.getElementById('destinatario').value;
+            
+            let nuevoPaciente = {
+                destinatario_servicio: destinatario,
+                horario_preferido: document.getElementById('horario').value,
+                motivo_consulta: document.getElementById('motivo').value,
+                estado: 'Pendiente de revisión'
+            };
+
+            if (destinatario === 'Para una tercera persona') {
+                nuevoPaciente.nombre_solicitante = document.getElementById('nombre').value;
+                nuevoPaciente.correo_solicitante = document.getElementById('correo').value;
+                nuevoPaciente.telefono_solicitante = document.getElementById('telefono').value;
+                
+                nuevoPaciente.nombre_paciente = document.getElementById('nombre_paciente').value;
+                nuevoPaciente.edad_paciente = parseInt(document.getElementById('edad_paciente').value) || null;
+                nuevoPaciente.genero_paciente = document.getElementById('genero_paciente').value || null;
+                
+                nuevoPaciente.nombre_completo = document.getElementById('nombre_paciente').value;
+                nuevoPaciente.edad = parseInt(document.getElementById('edad_paciente').value) || null;
+                nuevoPaciente.genero = document.getElementById('genero_paciente').value || null;
+                nuevoPaciente.correo = document.getElementById('correo').value;
+                nuevoPaciente.telefono = document.getElementById('telefono').value;
+            } else {
+                nuevoPaciente.nombre_completo = document.getElementById('nombre').value;
+                nuevoPaciente.edad = parseInt(document.getElementById('edad').value) || null;
+                nuevoPaciente.genero = document.getElementById('genero').value || null;
+                nuevoPaciente.correo = document.getElementById('correo').value;
+                nuevoPaciente.telefono = document.getElementById('telefono').value;
+            }
+
+            const { error } = await _supabase.from('pacientes').insert([nuevoPaciente]);
+
+            // 2. Restaurar el botón
+            btnEnviar.disabled = false;
+            btnEnviar.classList.remove('opacity-75', 'cursor-not-allowed');
+            btnTexto.textContent = 'Enviar Solicitud de Evaluación';
+            btnSpinner.classList.add('hidden');
+
+            if (error) {
+                alert('Error de Supabase: ' + error.message);
+                console.error(error);
+            } else {
+                mensajeBox.textContent = '¡Solicitud enviada con éxito! El equipo evaluará tu caso y se pondrá en contacto contigo en un plazo aproximado de 15 días.';
+                mensajeBox.classList.remove('hidden');
+                document.getElementById('cita-form').reset();
+                toggleCamposTercero();
+                setTimeout(() => mensajeBox.classList.add('hidden'), 7000);
+            }
+        });
+    </script>
+</body>
+</html>

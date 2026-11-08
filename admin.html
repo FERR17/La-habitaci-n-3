@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Coordinación - La Habitación 3</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans antialiased">
+
+    <!-- Encabezado del Panel -->
+    <header class="bg-white shadow-sm py-4 px-6 flex justify-between items-center">
+        <div>
+            <h1 class="text-xl font-bold text-teal-700">La Habitación 3 • Panel de Coordinación</h1>
+            <p class="text-xs text-slate-500">Gestión interna de solicitudes y asignación de especialistas</p>
+        </div>
+        <div>
+            <a href="home.html" target="_blank" class="text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg transition font-medium">Ver Página Pública ↗</a>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        
+        <!-- Tarjetas de Resumen -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                <p class="text-xs text-slate-500 uppercase font-semibold">Total Solicitudes</p>
+                <p id="total-solicitudes" class="text-2xl font-bold text-teal-700 mt-1">0</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                <p class="text-xs text-slate-500 uppercase font-semibold">Pendientes de Revisión</p>
+                <p id="total-pendientes" class="text-2xl font-bold text-amber-600 mt-1">0</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                <p class="text-xs text-slate-500 uppercase font-semibold">Aceptados / En Proceso</p>
+                <p id="total-aceptados" class="text-2xl font-bold text-emerald-600 mt-1">0</p>
+            </div>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
+                <p class="text-xs text-slate-500 uppercase font-semibold">Derivados / Externos</p>
+                <p id="total-derivados" class="text-2xl font-bold text-rose-600 mt-1">0</p>
+            </div>
+        </div>
+
+        <!-- Tabla de Solicitudes -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="p-6 border-b border-slate-200 flex justify-between items-center">
+                <h2 class="text-lg font-semibold text-slate-700">Listado de Pacientes y Solicitudes</h2>
+                <button onclick="cargarDatosPanel()" class="text-sm bg-teal-50 hover:bg-teal-100 text-teal-700 font-medium px-3 py-1.5 rounded-lg transition">Actualizar Lista 🔄</button>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-600 text-xs uppercase tracking-wider border-b border-slate-200">
+                            <th class="py-3 px-4">Fecha / Tipo</th>
+                            <th class="py-3 px-4">Paciente / Solicitante</th>
+                            <th class="py-3 px-4">Contacto</th>
+                            <th class="py-3 px-4">Horario Pref.</th>
+                            <th class="py-3 px-4">Motivo de Consulta</th>
+                            <th class="py-3 px-4">Psicóloga Asignada</th>
+                            <th class="py-3 px-4">Estado</th>
+                            <th class="py-3 px-4 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-pacientes" class="divide-y divide-slate-100 text-sm">
+                        <tr>
+                            <td colspan="8" class="text-center py-6 text-slate-400">Cargando datos...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Script de Conexión y Lógica del Panel -->
+    <script>
+        const SUPABASE_URL = 'https://oddwjbwgwzjileskswav.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_vnjYqGK_ubz_Zsq50oc4Sw_NLdtbtlh';
+
+        const { createClient } = supabase;
+        const _supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let listaPsicologas = [];
+
+        async function cargarDatosPanel() {
+            const { data: psicologasData, error: errorPsicologas } = await _supabase
+                .from('psicologas')
+                .select('*')
+                .eq('activa', true);
+
+            if (!errorPsicologas) {
+                listaPsicologas = psicologasData;
+            }
+
+            const { data, error } = await _supabase
+                .from('pacientes')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            const tbody = document.getElementById('tabla-pacientes');
+
+            if (error) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-red-500">Error al cargar los datos: ${error.message}</td></tr>`;
+                console.error(error);
+                return;
+            }
+
+            document.getElementById('total-solicitudes').textContent = data.length;
+            document.getElementById('total-pendientes').textContent = data.filter(p => p.estado === 'Pendiente de revisión').length;
+            document.getElementById('total-aceptados').textContent = data.filter(p => p.estado === 'Aceptado').length;
+            document.getElementById('total-derivados').textContent = data.filter(p => p.estado === 'Derivado').length;
+
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400">No hay solicitudes registradas todavía.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = '';
+            data.forEach(p => {
+                const fecha = new Date(p.created_at).toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                
+                let infoPaciente = `<strong class="text-slate-800">${p.nombre_completo || 'Sin nombre'}</strong><br><span class="text-xs text-slate-500">Edad: ${p.edad || 'N/D'} | ${p.genero || ''}</span>`;
+                if (p.destinatario_servicio === 'Para una tercera persona') {
+                    infoPaciente = `
+                        <span class="inline-block bg-amber-50 text-amber-700 text-[10px] font-semibold px-1.5 py-0.5 rounded mb-1">Tercero / Tutor</span><br>
+                        <strong class="text-slate-800">${p.nombre_paciente || p.nombre_completo}</strong><br>
+                        <span class="text-xs text-slate-500">Solicita: ${p.nombre_solicitante}</span>
+                    `;
+                }
+
+                let opcionesPsicologas = `<option value="">Sin asignar</option>`;
+                listaPsicologas.forEach(psi => {
+                    const seleccionada = p.psicologa_asignada_id === psi.id ? 'selected' : '';
+                    opcionesPsicologas += `<option value="${psi.id}" ${seleccionada}>${psi.nombre_completo}</option>`;
+                });
+
+                let badgeColor = 'bg-amber-50 text-amber-700 border-amber-200';
+                if (p.estado === 'Aceptado') badgeColor = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                if (p.estado === 'Derivado') badgeColor = 'bg-rose-50 text-rose-700 border-rose-200';
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50/80 transition">
+                        <td class="py-4 px-4 align-top">
+                            <span class="font-medium text-slate-700">${fecha}</span><br>
+                            <span class="text-xs text-slate-400">${p.destinatario_servicio || 'Personal'}</span>
+                        </td>
+                        <td class="py-4 px-4 align-top">
+                            ${infoPaciente}
+                        </td>
+                        <td class="py-4 px-4 align-top text-xs text-slate-600">
+                            📧 ${p.correo_solicitante || p.correo || 'N/D'}<br>
+                            📱 ${p.telefono_solicitante || p.telefono || 'N/D'}
+                        </td>
+                        <td class="py-4 px-4 align-top text-xs text-slate-600">
+                            ${p.horario_preferido || 'No especificado'}
+                        </td>
+                        <td class="py-4 px-4 align-top text-xs text-slate-600 max-w-xs truncate" title="${p.motivo_consulta}">
+                            ${p.motivo_consulta}
+                        </td>
+                        <td class="py-4 px-4 align-top">
+                            <select onchange="actualizarAsignacion(${p.id}, this.value)" class="text-xs font-medium px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white outline-none cursor-pointer w-full">
+                                ${opcionesPsicologas}
+                            </select>
+                        </td>
+                        <td class="py-4 px-4 align-top">
+                            <select onchange="actualizarEstado(${p.id}, this.value)" class="text-xs font-semibold px-2.5 py-1.5 rounded-lg border ${badgeColor} outline-none cursor-pointer">
+                                <option value="Pendiente de revisión" ${p.estado === 'Pendiente de revisión' ? 'selected' : ''}>Pendiente de revisión</option>
+                                <option value="Aceptado" ${p.estado === 'Aceptado' ? 'selected' : ''}>Aceptado</option>
+                                <option value="Derivado" ${p.estado === 'Derivado' ? 'selected' : ''}>Derivado (Criterio especial)</option>
+                            </select>
+                        </td>
+                        <td class="py-4 px-4 align-top text-center">
+                            <button onclick="eliminarSolicitud(${p.id})" class="text-slate-400 hover:text-red-600 text-xs transition p-1" title="Eliminar registro">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function actualizarAsignacion(id, psicologaId) {
+            const valorAsignado = psicologaId === "" ? null : parseInt(psicologaId);
+            
+            const { error } = await _supabase
+                .from('pacientes')
+                .update({ psicologa_asignada_id: valorAsignado })
+                .eq('id', id);
+
+            if (error) {
+                alert('Error al asignar la psicóloga: ' + error.message);
+            }
+        }
+
+        async function actualizarEstado(id, nuevoEstado) {
+            const { error } = await _supabase
+                .from('pacientes')
+                .update({ estado: nuevoEstado })
+                .eq('id', id);
+
+            if (error) {
+                alert('Error al actualizar el estado: ' + error.message);
+            } else {
+                cargarDatosPanel();
+            }
+        }
+
+        async function eliminarSolicitud(id) {
+            if (confirm('¿Estás segura de que deseas eliminar este registro?')) {
+                const { error } = await _supabase.from('pacientes').delete().eq('id', id);
+                if (error) {
+                    alert('Error al eliminar: ' + error.message);
+                } else {
+                    cargarDatosPanel();
+                }
+            }
+        }
+
+        cargarDatosPanel();
+    </script>
+</body>
+</html>
