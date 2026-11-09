@@ -11,17 +11,34 @@
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased">
 
-    <!-- Encabezado / Navegación -->
-    <header class="bg-white shadow-sm py-4 px-6 relative">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-3">
+    <!-- Encabezado / Navegación Superior -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
+            
+            <!-- Logotipo y Nombre (Con clic hacia index.html) -->
+            <a href="index.html" class="flex items-center space-x-3 hover:opacity-80 transition cursor-pointer">
                 <img src="img/Logo.jpg" alt="Logo La Habitación 3" class="w-9 h-9 object-cover rounded-lg shadow-sm border border-slate-200">
                 <span class="font-bold text-teal-700 text-base">La Habitación 3</span>
-            </div>
-            <nav class="flex items-center space-x-6 text-sm font-medium">
+            </a>
+
+            <!-- Navegación de Escritorio -->
+            <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
                 <a href="index.html" class="text-slate-600 hover:text-teal-700 transition">Inicio</a>
                 <a href="team.html" class="text-slate-600 hover:text-teal-700 transition">Nuestro Equipo</a>
             </nav>
+
+            <!-- Botón de Hamburguesa (Celulares/Tablets) -->
+            <button id="menu-btn" class="md:hidden text-slate-700 focus:outline-none p-2 rounded-lg hover:bg-slate-100 transition cursor-pointer" aria-label="Abrir menú">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Menú Desplegable Móvil -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-slate-100 px-6 py-4 space-y-3 shadow-lg">
+            <a href="index.html" class="block text-slate-600 hover:text-teal-600 transition py-1">Inicio</a>
+            <a href="team.html" class="block text-slate-600 hover:text-teal-600 transition py-1">Nuestro Equipo</a>
         </div>
     </header>
 
@@ -79,7 +96,7 @@
                     </div>
                 </div>
 
-                <!-- SECCIÓN 2: Datos del Paciente (Solo si es para un tercero) -->
+                <!-- SECCIÓN 2: Datos del Paciente (Tercera persona) -->
                 <div id="seccion-tercero" class="hidden space-y-4 p-4 bg-teal-50/50 rounded-xl border border-teal-100">
                     <h3 class="font-semibold text-teal-800 text-sm">Datos del Paciente (Tercera Persona)</h3>
                     <div>
@@ -118,7 +135,7 @@
                     <textarea id="motivo" rows="4" required placeholder="Describe brevemente el motivo..." class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"></textarea>
                 </div>
 
-                <!-- Casilla de aceptación obligatoria -->
+                <!-- Casilla de Aceptación -->
                 <div class="flex items-start space-x-3 pt-2">
                     <input type="checkbox" id="terminos" required class="mt-1 h-4 w-4 text-teal-600 focus:ring-teal-500 border-slate-300 rounded cursor-pointer">
                     <label for="terminos" class="text-xs text-slate-600 cursor-pointer leading-relaxed">
@@ -126,7 +143,7 @@
                     </label>
                 </div>
 
-                <!-- Botón de Envío con soporte para Spinner -->
+                <!-- Botón con Spinner -->
                 <button type="submit" id="btn-enviar" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-3 rounded-lg transition shadow-sm mt-4 flex items-center justify-center space-x-2 cursor-pointer">
                     <span id="btn-texto">Enviar Solicitud de Evaluación</span>
                     <svg id="btn-spinner" class="hidden animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -140,7 +157,17 @@
 
     </main>
 
-    <!-- Script de Conexión y Lógica -->
+    <!-- Script Menú Desplegable -->
+    <script>
+        const btn = document.getElementById('menu-btn');
+        const menu = document.getElementById('mobile-menu');
+
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+    </script>
+
+    <!-- Script Supabase & Lógica -->
     <script>
         const SUPABASE_URL = 'https://oddwjbwgwzjileskswav.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_vnjYqGK_ubz_Zsq50oc4Sw_NLdtbtlh';
@@ -179,7 +206,6 @@
             const btnSpinner = document.getElementById('btn-spinner');
             const mensajeBox = document.getElementById('mensaje-exito');
 
-            // 1. Activar estado de carga
             btnEnviar.disabled = true;
             btnEnviar.classList.add('opacity-75', 'cursor-not-allowed');
             btnTexto.textContent = 'Enviando solicitud...';
@@ -219,7 +245,6 @@
 
             const { error } = await _supabase.from('pacientes').insert([nuevoPaciente]);
 
-            // 2. Restaurar el botón
             btnEnviar.disabled = false;
             btnEnviar.classList.remove('opacity-75', 'cursor-not-allowed');
             btnTexto.textContent = 'Enviar Solicitud de Evaluación';
