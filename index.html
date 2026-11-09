@@ -12,10 +12,14 @@
     <!-- Navegación Superior -->
     <header class="bg-white shadow-sm sticky top-0 z-50">
         <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+            
+            <!-- Logotipo y Nombre -->
             <div class="flex items-center space-x-3">
                 <img src="img/Logo.jpg" alt="Logo La Habitación 3" class="w-10 h-10 object-cover rounded-lg shadow-sm border border-slate-200">
                 <span class="font-bold text-teal-700 text-lg">La Habitación 3</span>
             </div>
+
+            <!-- Navegación de Escritorio (Se oculta en celulares) -->
             <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
                 <a href="index.html" class="text-teal-700 font-semibold">Inicio</a>
                 <a href="team.html" class="text-slate-600 hover:text-teal-600 transition">Nuestro Equipo</a>
@@ -24,6 +28,25 @@
                 <a href="#faq" class="text-slate-600 hover:text-teal-600 transition">Preguntas Frecuentes</a>
                 <a href="form.html" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg transition shadow-sm">Solicitar Valoración</a>
             </nav>
+
+            <!-- Botón de Hamburguesa (Visible solo en celulares/tablets) -->
+            <button id="menu-btn" class="md:hidden text-slate-700 focus:outline-none p-2 rounded-lg hover:bg-slate-100 transition cursor-pointer" aria-label="Abrir menú">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Menú Desplegable para Celulares (Oculto por defecto) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-slate-100 px-6 py-4 space-y-3 shadow-lg">
+            <a href="index.html" class="block text-teal-700 font-semibold py-1">Inicio</a>
+            <a href="team.html" class="block text-slate-600 hover:text-teal-600 transition py-1">Nuestro Equipo</a>
+            <a href="#acerca" class="block text-slate-600 hover:text-teal-600 transition py-1">Sobre el Servicio</a>
+            <a href="#proceso" class="block text-slate-600 hover:text-teal-600 transition py-1">¿Cómo funciona?</a>
+            <a href="#faq" class="block text-slate-600 hover:text-teal-600 transition py-1">Preguntas Frecuentes</a>
+            <div class="pt-2">
+                <a href="form.html" class="block text-center bg-teal-600 hover:bg-teal-700 text-white px-4 py-2.5 rounded-lg transition shadow-sm font-medium">Solicitar Valoración</a>
+            </div>
         </div>
     </header>
 
@@ -145,6 +168,16 @@
         <p><strong>La Habitación 3</strong> • Egresadas Facultad de Psicología BUAP</p>
         <p class="mt-1 text-xs text-slate-400">Espacio de acompañamiento psicológico profesional.</p>
     </footer>
+
+    <!-- Script para controlar el menú desplegable en dispositivos móviles -->
+    <script>
+        const btn = document.getElementById('menu-btn');
+        const menu = document.getElementById('mobile-menu');
+
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+    </script>
 
 </body>
 </html>
